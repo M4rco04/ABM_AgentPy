@@ -1,7 +1,5 @@
 """Run and animate the boids simulation."""
 
-from __future__ import annotations
-
 import agentpy as ap
 import matplotlib.pyplot as plt
 import numpy as np
