@@ -1,0 +1,1 @@
+"""Boids AgentPy simulation package."""

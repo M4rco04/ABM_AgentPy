@@ -1,0 +1,14 @@
+{
+  "size": 100,
+  "ndim": 2,
+  "population": 120,
+  "steps": 500,
+  "inner_radius": 2.5,
+  "outer_radius": 10.0,
+  "border_distance": 5.0,
+  "border_strength": 0.5,
+  "cohesion_strength": 0.005,
+  "separation_strength": 0.1,
+  "alignment_strength": 0.3,
+  "seed": 69
+}
