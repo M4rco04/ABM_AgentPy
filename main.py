@@ -1,43 +1,48 @@
-"""Run and animate the boids simulation."""
+"""Run one of the available AgentPy simulations."""
+
+import argparse
 
 import agentpy as ap
 import matplotlib.pyplot as plt
-import numpy as np
 
-from Boids.model import BoidsModel, default_parameters
-
-
-def plot_model(model: BoidsModel, axis) -> None:
-    """Draw the current AgentPy model state for one animation frame."""
-    positions = np.asarray(list(model.space.positions.values()))
-    axis.scatter(
-        positions[:, 0],
-        positions[:, 1],
-        s=22,
-        color="tab:blue",
-    )
-    axis.set_xlim(0, model.p.size)
-    axis.set_ylim(0, model.p.size)
-    axis.set_aspect("equal")
-    axis.set_title(f"Boids - AgentPy - krok {model.t}")
-    axis.set_xlabel("x")
-    axis.set_ylabel("y")
-    axis.grid(alpha=0.2)
+from Boids.model import BoidsModel, default_parameters as boids_parameters
+from Boids.visualization import plot_model
+from Life.model import GameOfLife, default_parameters as life_parameters
+from Life.visualization import plot_model as plot_life_model
 
 
 def main() -> None:
-    model = BoidsModel(default_parameters())
+    """Parse the selected simulation and display its animation."""
+    parser = argparse.ArgumentParser(description="Uruchom symulację AgentPy.")
+    parser.add_argument(
+        "simulation",
+        nargs="?",
+        choices=("boids", "life"),
+        default="boids",
+        help="symulacja do uruchomienia (domyślnie: boids)",
+    )
+    args = parser.parse_args()
+
+    if args.simulation == "life":
+        model = GameOfLife(life_parameters())
+        plot_function = plot_life_model
+        interval = 150
+    else:
+        model = BoidsModel(boids_parameters())
+        plot_function = plot_model
+        interval = 35
+
     figure, axis = plt.subplots(figsize=(8, 8))
     close_figure = plt.close
-    plt.close = lambda *args, **kwargs: None
+    plt.close = lambda *_, **__: None
     try:
-        animation = ap.animate(
+        _ = ap.animate(
             model,
             figure,
             axis,
-            plot_model,
+            plot_function,
             blit=False,
-            interval=35,
+            interval=interval,
             repeat=True,
         )
     finally:
