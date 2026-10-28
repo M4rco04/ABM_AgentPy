@@ -1,0 +1,7 @@
+{
+  "size": 80,
+  "ndim": 2,
+  "steps": 500,
+  "initial_density": 0.25,
+  "seed": 69
+}
