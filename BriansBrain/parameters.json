@@ -1,0 +1,7 @@
+{
+  "size": 80,
+  "steps": 500,
+  "initial_off_probability": 0.7,
+  "neighbor_distance": 1,
+  "seed": 42
+}
