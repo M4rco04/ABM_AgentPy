@@ -33,9 +33,24 @@ def run_brain() -> None:
     del animation
 
 
+def run_sand() -> None:
+    """Compute the sandpile simulation, then show the animation."""
+    from SandStack.model import default_parameters
+    from SandStack.visualization import animate_model, run_simulation
+
+    print("Obliczanie symulacji SandStack...")
+    model = run_simulation(default_parameters())
+    print(f"Gotowe: {model.t} kroków. Uruchamiam animację.")
+
+    animation = animate_model(model, interval=50)
+    plt.show()
+    del animation
+
+
 SIMULATIONS = {
     "boids": run_boids,
     "brain": run_brain,
+    "sand": run_sand,
 }
 
 

@@ -1,0 +1,8 @@
+{
+  "W": 61,
+  "H": 61,
+  "steps": 20000,
+  "drop": "center",
+  "record_every": 20,
+  "seed": 42
+}

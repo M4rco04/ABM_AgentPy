@@ -35,7 +35,6 @@ class BriansBrain(ap.Model):
         self.history.append(self.state_grid())
 
     def step(self) -> None:
-        # Two phases, so all cells change at the same time.
         self.agents.compute_next_state()
         self.agents.apply_next_state()
         self.record_state()

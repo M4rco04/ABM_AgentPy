@@ -3,7 +3,8 @@
 Agent-based simulations built with [AgentPy](https://agentpy.readthedocs.io/):
 
 - **Boids** — flocking behaviour of birds,
-- **Brian's Brain** — a three-state cellular automaton.
+- **Brian's Brain** — a three-state cellular automaton,
+- **SandStack** — a sandpile model (Bak–Tang–Wiesenfeld).
 
 Every simulation is computed in full first, and only then replayed as an
 animation from the recorded history. This keeps the animation smooth no matter
@@ -31,6 +32,7 @@ Choose the simulation with a command-line argument:
 ```powershell
 python .\main.py boids   # Boids (default)
 python .\main.py brain   # Brian's Brain
+python .\main.py sand    # SandStack
 python .\main.py         # same as "boids"
 python .\main.py --help  # list available simulations
 ```
@@ -39,6 +41,7 @@ python .\main.py --help  # list available simulations
 | -------- | ------------- | ------------------------------ |
 | `boids`  | Boids         | [`Boids/`](Boids/)             |
 | `brain`  | Brian's Brain | [`BriansBrain/`](BriansBrain/) |
+| `sand`   | SandStack     | [`SandStack/`](SandStack/)     |
 
 Each package loads its parameters from its own `parameters.json` through
 `default_parameters()`, regardless of the directory the program is run from.
@@ -103,6 +106,45 @@ Stored in [`BriansBrain/parameters.json`](BriansBrain/parameters.json).
 | `neighbor_distance` | neighbourhood radius (1 = the 8 surrounding cells) |
 | `seed` | random seed — the same seed gives the same run |
 
+## SandStack
+
+A sandpile on a bounded square grid. Each cell is an agent holding `h` grains
+of sand. In every step:
+
+1. One grain falls on the grid — on the centre cell or on a random cell.
+2. Every cell with 4 or more grains **topples**: it loses 4 grains and gives
+   one to each of its 4 von Neumann neighbours (up, down, left, right).
+3. Toppling repeats until no cell has 4 or more grains. One dropped grain can
+   start a chain reaction (an **avalanche**) that spreads far across the grid.
+
+The grid does not wrap: grains toppled over the edge fall off and are lost.
+After an avalanche every cell holds 0–3 grains, shown in four colours.
+
+- With `drop: "center"` the pile grows from the middle into a symmetric
+  fractal pattern.
+- With `drop: "random"` the grid fills up evenly until it reaches a critical
+  state, where avalanches of all sizes occur (self-organised criticality).
+
+The number of topplings caused by each grain is stored in
+`model.avalanche_sizes`.
+
+### SandStack parameters
+
+Stored in [`SandStack/parameters.json`](SandStack/parameters.json).
+
+| Parameter | Meaning |
+| --- | --- |
+| `W` | grid width |
+| `H` | grid height |
+| `steps` | number of simulation steps = number of dropped grains |
+| `drop` | where grains fall: `"center"` or `"random"` |
+| `record_every` | save a frame every N steps (the last step is always saved) |
+| `seed` | random seed — the same seed gives the same run |
+
+With the default settings (61×61, 5000 grains, `"center"`) the computation
+takes several seconds. In `"center"` mode the time grows quickly with the
+number of grains, because avalanches get larger as the pile grows.
+
 ## Project structure
 
 | File | Contents |
@@ -116,10 +158,14 @@ Stored in [`BriansBrain/parameters.json`](BriansBrain/parameters.json).
 | [`BriansBrain/environment.py`](BriansBrain/environment.py) | creates the toroidal `ap.Grid` |
 | [`BriansBrain/model.py`](BriansBrain/model.py) | `BriansBrain` — runs the steps and records the grid of states (`history`) |
 | [`BriansBrain/visualization.py`](BriansBrain/visualization.py) | `run_simulation()` computes the whole model, `animate_model()` replays the recorded history |
+| [`SandStack/agent.py`](SandStack/agent.py) | the `SandCell` class with the toppling rule (`is_unstable`, `topple`) |
+| [`SandStack/environment.py`](SandStack/environment.py) | creates the bounded `ap.Grid` and finds von Neumann neighbours (`von_neumann_neighbors`) |
+| [`SandStack/model.py`](SandStack/model.py) | `SandStack` — drops grains, runs avalanches and records the heights (`history`, `history_steps`) |
+| [`SandStack/visualization.py`](SandStack/visualization.py) | `run_simulation()` computes the whole model, `animate_model()` replays the recorded history |
 
 ## Using it from your own code
 
-Both packages expose the same functions:
+All packages expose the same functions:
 
 ```python
 import matplotlib.pyplot as plt
@@ -135,5 +181,5 @@ animation = animate_model(model)     # animation from the recorded history
 plt.show()
 ```
 
-For Brian's Brain, import from `BriansBrain.model` and
-`BriansBrain.visualization` instead.
+For the other simulations, import from `BriansBrain.*` or `SandStack.*`
+instead.
