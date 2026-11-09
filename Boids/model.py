@@ -19,16 +19,28 @@ class BoidsModel(ap.Model):
         self.agents = ap.AgentList(self, self.p.population, Boid)
         self.space.add_agents(self.agents, random=True)
         self.agents.setup_pos(self.space)
-        self.history: list[np.ndarray] = [self.positions()]
+
+        self.history: list[np.ndarray] = []
+        self.velocity_history: list[np.ndarray] = []
+        self.record_state()
 
     def positions(self) -> np.ndarray:
-        """Return a copy of all boid positions in a stable array shape."""
-        return np.asarray(list(self.space.positions.values()), dtype=float).copy()
+        """Return a copy of all boid positions, one row per agent."""
+        return np.asarray(list(self.agents.pos), dtype=float).copy()
+
+    def velocities(self) -> np.ndarray:
+        """Return a copy of all boid velocities, one row per agent."""
+        return np.asarray(list(self.agents.velocity), dtype=float).copy()
+
+    def record_state(self) -> None:
+        """Store the current positions and velocities of all boids."""
+        self.history.append(self.positions())
+        self.velocity_history.append(self.velocities())
 
     def step(self) -> None:
         self.agents.update_velocity()
         self.agents.update_position()
-        self.history.append(self.positions())
+        self.record_state()
 
     def end(self) -> None:
         self.final_positions = self.positions()
