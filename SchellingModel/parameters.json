@@ -1,0 +1,9 @@
+{
+  "size": 80,
+  "agents_count": 4000,
+  "n_groups": 10,
+  "neighbor_distance": 1,
+  "want_similar": 0.2,
+  "steps": 200,
+  "seed": 42
+}

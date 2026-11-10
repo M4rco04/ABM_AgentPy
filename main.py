@@ -47,10 +47,25 @@ def run_sand() -> None:
     del animation
 
 
+def run_schelling() -> None:
+    """Compute the Schelling segregation simulation, then show the animation."""
+    from SchellingModel.model import default_parameters
+    from SchellingModel.visualization import animate_model, run_simulation
+
+    print("Obliczanie symulacji Schellinga...")
+    model = run_simulation(default_parameters())
+    print(f"Gotowe: {model.t} kroków. Uruchamiam animację.")
+
+    animation = animate_model(model, interval=150)
+    plt.show()
+    del animation
+
+
 SIMULATIONS = {
     "boids": run_boids,
     "brain": run_brain,
     "sand": run_sand,
+    "schelling": run_schelling,
 }
 
 
