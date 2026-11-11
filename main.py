@@ -33,6 +33,23 @@ def run_brain() -> None:
     del animation
 
 
+def run_dla() -> None:
+    """Compute the diffusion-limited aggregation, then show the animation."""
+    from DiffusionLimitedAggregation.model import default_parameters
+    from DiffusionLimitedAggregation.visualization import (
+        animate_model,
+        run_simulation,
+    )
+
+    print("Obliczanie symulacji DLA...")
+    model = run_simulation(default_parameters())
+    print(f"Gotowe: {model.t} kroków. Uruchamiam animację.")
+
+    animation = animate_model(model, interval=30)
+    plt.show()
+    del animation
+
+
 def run_sand() -> None:
     """Compute the sandpile simulation, then show the animation."""
     from SandStack.model import default_parameters
@@ -64,6 +81,7 @@ def run_schelling() -> None:
 SIMULATIONS = {
     "boids": run_boids,
     "brain": run_brain,
+    "dla": run_dla,
     "sand": run_sand,
     "schelling": run_schelling,
 }

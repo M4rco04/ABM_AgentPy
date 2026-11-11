@@ -4,6 +4,7 @@ Agent-based simulations built with [AgentPy](https://agentpy.readthedocs.io/):
 
 - **Boids** — flocking behaviour of birds,
 - **Brian's Brain** — a three-state cellular automaton,
+- **Diffusion-Limited Aggregation** — random walkers forming a fractal cluster,
 - **SandStack** — a sandpile model (Bak–Tang–Wiesenfeld),
 - **Schelling** — Schelling's segregation model.
 
@@ -33,18 +34,20 @@ Choose the simulation with a command-line argument:
 ```powershell
 python .\main.py boids   # Boids (default)
 python .\main.py brain   # Brian's Brain
+python .\main.py dla     # Diffusion-Limited Aggregation
 python .\main.py sand    # SandStack
 python .\main.py schelling  # Schelling segregation
 python .\main.py         # same as "boids"
 python .\main.py --help  # list available simulations
 ```
 
-| Argument | Simulation    | Package                        |
-| -------- | ------------- | ------------------------------ |
-| `boids`  | Boids         | [`Boids/`](Boids/)             |
-| `brain`  | Brian's Brain | [`BriansBrain/`](BriansBrain/) |
-| `sand`   | SandStack     | [`SandStack/`](SandStack/)     |
-| `schelling` | Schelling  | [`SchellingModel/`](SchellingModel/) |
+| Argument    | Simulation                    | Package                                                        |
+| ----------- | ----------------------------- | -------------------------------------------------------------- |
+| `boids`     | Boids                         | [`Boids/`](Boids/)                                             |
+| `brain`     | Brian's Brain                 | [`BriansBrain/`](BriansBrain/)                                 |
+| `dla`       | Diffusion-Limited Aggregation | [`DiffusionLimitedAggregation/`](DiffusionLimitedAggregation/) |
+| `sand`      | SandStack                     | [`SandStack/`](SandStack/)                                     |
+| `schelling` | Schelling                     | [`SchellingModel/`](SchellingModel/)                           |
 
 Each package loads its parameters from its own `parameters.json` through
 `default_parameters()`, regardless of the directory the program is run from.
@@ -108,6 +111,39 @@ Stored in [`BriansBrain/parameters.json`](BriansBrain/parameters.json).
 | `initial_off_probability` | probability that a cell starts as `OFF` (otherwise `ON`) |
 | `neighbor_distance` | neighbourhood radius (1 = the 8 surrounding cells) |
 | `seed` | random seed — the same seed gives the same run |
+
+## Diffusion-Limited Aggregation
+
+Particles on a bounded square grid, at most one per cell. One particle — the
+**seed** — starts stuck in the centre; all the others are placed on random
+empty cells and walk randomly. In every step, each walking particle (in random
+order):
+
+1. Picks one of the 8 surrounding cells at random and moves there. If that
+   cell is occupied or outside the grid, the particle stays where it is.
+2. **Sticks** for good if any of its 8 neighbours is already stuck.
+
+Because a walker almost always meets the outer tips of the cluster before it
+can reach the inside, the cluster grows into a branching, fractal shape. The
+simulation stops early once every particle is stuck. The animation title shows
+how many particles belong to the cluster.
+
+### Diffusion-Limited Aggregation parameters
+
+Stored in
+[`DiffusionLimitedAggregation/parameters.json`](DiffusionLimitedAggregation/parameters.json).
+
+| Parameter | Meaning |
+| --- | --- |
+| `h` | size of the grid along its first axis (drawn as x) |
+| `w` | size of the grid along its second axis (drawn as y) |
+| `n_particles` | number of walking particles (the seed is added on top); must be lower than `h * w` |
+| `steps` | maximal number of simulation steps |
+| `seed` | random seed — the same seed gives the same run |
+
+With the default settings (100×100, 1500 particles) the computation takes
+about half a minute. A higher particle density gives a denser cluster with
+shorter branches.
 
 ## SandStack
 
@@ -191,6 +227,10 @@ Stored in [`SchellingModel/parameters.json`](SchellingModel/parameters.json).
 | [`BriansBrain/environment.py`](BriansBrain/environment.py) | creates the toroidal `ap.Grid` |
 | [`BriansBrain/model.py`](BriansBrain/model.py) | `BriansBrain` — runs the steps and records the grid of states (`history`) |
 | [`BriansBrain/visualization.py`](BriansBrain/visualization.py) | `run_simulation()` computes the whole model, `animate_model()` replays the recorded history |
+| [`DiffusionLimitedAggregation/agent.py`](DiffusionLimitedAggregation/agent.py) | the `Particle` class (random walk in `step`, sticking rule in `can_stick`) |
+| [`DiffusionLimitedAggregation/environment.py`](DiffusionLimitedAggregation/environment.py) | creates the bounded `ap.Grid` that tracks empty cells |
+| [`DiffusionLimitedAggregation/model.py`](DiffusionLimitedAggregation/model.py) | `DiffusionLimitedAggregationModel` — places the seed and the walkers, runs the steps and records the grid of states (`history`) and the cluster size (`stuck_history`) |
+| [`DiffusionLimitedAggregation/visualization.py`](DiffusionLimitedAggregation/visualization.py) | `run_simulation()` computes the whole model, `animate_model()` replays the recorded history |
 | [`SandStack/agent.py`](SandStack/agent.py) | the `SandCell` class with the toppling rule (`is_unstable`, `topple`) |
 | [`SandStack/environment.py`](SandStack/environment.py) | creates the bounded `ap.Grid` and finds von Neumann neighbours (`von_neumann_neighbors`) |
 | [`SandStack/model.py`](SandStack/model.py) | `SandStack` — drops grains, runs avalanches and records the heights (`history`, `history_steps`) |
@@ -218,5 +258,5 @@ animation = animate_model(model)     # animation from the recorded history
 plt.show()
 ```
 
-For the other simulations, import from `BriansBrain.*`, `SandStack.*` or `SchellingModel.*`
-instead.
+For the other simulations, import from `BriansBrain.*`,
+`DiffusionLimitedAggregation.*`, `SandStack.*` or `SchellingModel.*` instead.
