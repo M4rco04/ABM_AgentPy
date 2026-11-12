@@ -6,6 +6,7 @@ Agent-based simulations built with [AgentPy](https://agentpy.readthedocs.io/):
 - **Brian's Brain** — a three-state cellular automaton,
 - **Diffusion-Limited Aggregation** — random walkers forming a fractal cluster,
 - **Epidemic** — an SIR epidemic among randomly walking people,
+- **Langton's Ant** — a single ant repainting the grid it walks on,
 - **SandStack** — a sandpile model (Bak–Tang–Wiesenfeld),
 - **Schelling** — Schelling's segregation model.
 
@@ -37,6 +38,7 @@ python .\main.py boids   # Boids (default)
 python .\main.py brain   # Brian's Brain
 python .\main.py dla     # Diffusion-Limited Aggregation
 python .\main.py epidemic  # Epidemic (SIR)
+python .\main.py ant     # Langton's Ant
 python .\main.py sand    # SandStack
 python .\main.py schelling  # Schelling segregation
 python .\main.py         # same as "boids"
@@ -49,6 +51,7 @@ python .\main.py --help  # list available simulations
 | `brain`     | Brian's Brain                 | [`BriansBrain/`](BriansBrain/)                                 |
 | `dla`       | Diffusion-Limited Aggregation | [`DiffusionLimitedAggregation/`](DiffusionLimitedAggregation/) |
 | `epidemic`  | Epidemic (SIR)                | [`Epidemic/`](Epidemic/)                                       |
+| `ant`       | Langton's Ant                 | [`LangtonAnt/`](LangtonAnt/)                                   |
 | `sand`      | SandStack                     | [`SandStack/`](SandStack/)                                     |
 | `schelling` | Schelling                     | [`SchellingModel/`](SchellingModel/)                           |
 
@@ -192,6 +195,38 @@ With the default settings (100×100, 3000 people) the computation takes several
 seconds. A lower `infection_probability` or a lower population density can
 make the epidemic die out before it reaches most people.
 
+## Langton's Ant
+
+A single ant on a wrapping (toroidal) square grid of white cells. The ant is
+the only agent; the cell colours are kept in the model as an array. In every
+step the ant:
+
+1. Turns 90° **right** on a white cell or 90° **left** on a black cell.
+2. Flips the colour of the cell it stands on.
+3. Moves one cell forward.
+
+The model has no randomness, so every run is identical. For about 10 000
+steps the ant draws an irregular, chaotic blob. Then it starts building a
+"highway": a pattern that repeats every 104 steps and moves the ant 2 cells
+diagonally each time. On the wrapping grid the highway eventually comes back
+from the opposite side and runs into the blob.
+
+The animation shows the ant as a red dot; the title shows the number of black
+cells.
+
+### Langton's Ant parameters
+
+Stored in [`LangtonAnt/parameters.json`](LangtonAnt/parameters.json).
+
+| Parameter | Meaning |
+| --- | --- |
+| `size` | side length of the grid (`size * size` cells); the ant starts in the centre |
+| `steps` | number of simulation steps |
+| `record_every` | save a frame every N steps (the last step is always saved) |
+
+With the default settings (100×100, 12 000 steps) the computation takes a
+fraction of a second.
+
 ## SandStack
 
 A sandpile on a bounded square grid. Each cell is an agent holding `h` grains
@@ -282,6 +317,10 @@ Stored in [`SchellingModel/parameters.json`](SchellingModel/parameters.json).
 | [`Epidemic/environment.py`](Epidemic/environment.py) | creates the bounded `ap.Grid` that tracks empty cells |
 | [`Epidemic/model.py`](Epidemic/model.py) | `EpidemicModel` — infects the first people, runs the steps and records the grid of states (`history`) and the counts (`susceptible_history`, `infected_history`, `recovered_history`) |
 | [`Epidemic/visualization.py`](Epidemic/visualization.py) | `run_simulation()` computes the whole model, `animate_model()` replays the recorded history |
+| [`LangtonAnt/agent.py`](LangtonAnt/agent.py) | the `Ant` class (turning rule and movement in `step`) and the `DIRECTIONS` list |
+| [`LangtonAnt/environment.py`](LangtonAnt/environment.py) | creates the toroidal `ap.Grid` |
+| [`LangtonAnt/model.py`](LangtonAnt/model.py) | `LangtonAntModel` — keeps the cell colours (`cells`), runs the steps and records the colours (`history`, `history_steps`) and the ant position (`ant_history`) |
+| [`LangtonAnt/visualization.py`](LangtonAnt/visualization.py) | `run_simulation()` computes the whole model, `animate_model()` replays the recorded history |
 | [`SandStack/agent.py`](SandStack/agent.py) | the `SandCell` class with the toppling rule (`is_unstable`, `topple`) |
 | [`SandStack/environment.py`](SandStack/environment.py) | creates the bounded `ap.Grid` and finds von Neumann neighbours (`von_neumann_neighbors`) |
 | [`SandStack/model.py`](SandStack/model.py) | `SandStack` — drops grains, runs avalanches and records the heights (`history`, `history_steps`) |
@@ -310,5 +349,5 @@ plt.show()
 ```
 
 For the other simulations, import from `BriansBrain.*`,
-`DiffusionLimitedAggregation.*`, `Epidemic.*`, `SandStack.*` or
-`SchellingModel.*` instead.
+`DiffusionLimitedAggregation.*`, `Epidemic.*`, `LangtonAnt.*`, `SandStack.*`
+or `SchellingModel.*` instead.

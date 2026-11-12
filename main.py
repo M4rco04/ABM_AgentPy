@@ -5,6 +5,20 @@ import argparse
 import matplotlib.pyplot as plt
 
 
+def run_ant() -> None:
+    """Compute the Langton's ant simulation, then show the animation."""
+    from LangtonAnt.model import default_parameters
+    from LangtonAnt.visualization import animate_model, run_simulation
+
+    print("Obliczanie symulacji mrówki Langtona...")
+    model = run_simulation(default_parameters())
+    print(f"Gotowe: {model.t} kroków. Uruchamiam animację.")
+
+    animation = animate_model(model, interval=30)
+    plt.show()
+    del animation
+
+
 def run_boids() -> None:
     """Compute the boids simulation, then show the animation."""
     from Boids.model import default_parameters
@@ -93,6 +107,7 @@ def run_schelling() -> None:
 
 
 SIMULATIONS = {
+    "ant": run_ant,
     "boids": run_boids,
     "brain": run_brain,
     "dla": run_dla,
