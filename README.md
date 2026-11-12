@@ -5,6 +5,7 @@ Agent-based simulations built with [AgentPy](https://agentpy.readthedocs.io/):
 - **Boids** — flocking behaviour of birds,
 - **Brian's Brain** — a three-state cellular automaton,
 - **Diffusion-Limited Aggregation** — random walkers forming a fractal cluster,
+- **Epidemic** — an SIR epidemic among randomly walking people,
 - **SandStack** — a sandpile model (Bak–Tang–Wiesenfeld),
 - **Schelling** — Schelling's segregation model.
 
@@ -35,6 +36,7 @@ Choose the simulation with a command-line argument:
 python .\main.py boids   # Boids (default)
 python .\main.py brain   # Brian's Brain
 python .\main.py dla     # Diffusion-Limited Aggregation
+python .\main.py epidemic  # Epidemic (SIR)
 python .\main.py sand    # SandStack
 python .\main.py schelling  # Schelling segregation
 python .\main.py         # same as "boids"
@@ -46,6 +48,7 @@ python .\main.py --help  # list available simulations
 | `boids`     | Boids                         | [`Boids/`](Boids/)                                             |
 | `brain`     | Brian's Brain                 | [`BriansBrain/`](BriansBrain/)                                 |
 | `dla`       | Diffusion-Limited Aggregation | [`DiffusionLimitedAggregation/`](DiffusionLimitedAggregation/) |
+| `epidemic`  | Epidemic (SIR)                | [`Epidemic/`](Epidemic/)                                       |
 | `sand`      | SandStack                     | [`SandStack/`](SandStack/)                                     |
 | `schelling` | Schelling                     | [`SchellingModel/`](SchellingModel/)                           |
 
@@ -145,6 +148,50 @@ With the default settings (100×100, 1500 particles) the computation takes
 about half a minute. A higher particle density gives a denser cluster with
 shorter branches.
 
+## Epidemic
+
+An SIR epidemic on a bounded square grid, at most one person per cell. Each
+person is an agent in one of three states:
+
+| State         | Colour | Next state                                                                               |
+| ------------- | ------ | ---------------------------------------------------------------------------------------- |
+| `SUSCEPTIBLE` | blue   | `INFECTED` with probability `infection_probability`, checked once per infected neighbour |
+| `INFECTED`    | red    | `RECOVERED` with probability `recovery_probability` in every step                        |
+| `RECOVERED`   | grey   | stays `RECOVERED` (immune for good)                                                      |
+
+A few random people start as `INFECTED`. In every step:
+
+1. Every person (in random order) picks one of the 8 surrounding cells at
+   random and moves there. If that cell is occupied or outside the grid, the
+   person stays where it is.
+2. Every person chooses its next state from the current states of its
+   neighbours.
+3. All people switch to the chosen state at the same time, so a person
+   infected in this step cannot infect anyone until the next one.
+
+The simulation stops early once nobody is infected. The animation shows the
+grid next to the number of people in every state over time; a vertical line
+marks the current step.
+
+### Epidemic parameters
+
+Stored in [`Epidemic/parameters.json`](Epidemic/parameters.json).
+
+| Parameter | Meaning |
+| --- | --- |
+| `size` | side length of the grid (`size * size` cells) |
+| `population` | number of people; must be lower than `size * size`, so they have room to walk |
+| `initial_infected` | number of people infected at the start |
+| `infection_probability` | chance per step of catching the infection from one infected neighbour (0–1) |
+| `recovery_probability` | chance per step that an infected person recovers (0–1) |
+| `neighbor_distance` | neighbourhood radius (1 = the 8 surrounding cells) |
+| `steps` | maximal number of simulation steps |
+| `seed` | random seed — the same seed gives the same run |
+
+With the default settings (100×100, 3000 people) the computation takes several
+seconds. A lower `infection_probability` or a lower population density can
+make the epidemic die out before it reaches most people.
+
 ## SandStack
 
 A sandpile on a bounded square grid. Each cell is an agent holding `h` grains
@@ -231,6 +278,10 @@ Stored in [`SchellingModel/parameters.json`](SchellingModel/parameters.json).
 | [`DiffusionLimitedAggregation/environment.py`](DiffusionLimitedAggregation/environment.py) | creates the bounded `ap.Grid` that tracks empty cells |
 | [`DiffusionLimitedAggregation/model.py`](DiffusionLimitedAggregation/model.py) | `DiffusionLimitedAggregationModel` — places the seed and the walkers, runs the steps and records the grid of states (`history`) and the cluster size (`stuck_history`) |
 | [`DiffusionLimitedAggregation/visualization.py`](DiffusionLimitedAggregation/visualization.py) | `run_simulation()` computes the whole model, `animate_model()` replays the recorded history |
+| [`Epidemic/agent.py`](Epidemic/agent.py) | `HealthState` and the `Person` class (random walk in `move`, state rules in `compute_next_state`) |
+| [`Epidemic/environment.py`](Epidemic/environment.py) | creates the bounded `ap.Grid` that tracks empty cells |
+| [`Epidemic/model.py`](Epidemic/model.py) | `EpidemicModel` — infects the first people, runs the steps and records the grid of states (`history`) and the counts (`susceptible_history`, `infected_history`, `recovered_history`) |
+| [`Epidemic/visualization.py`](Epidemic/visualization.py) | `run_simulation()` computes the whole model, `animate_model()` replays the recorded history |
 | [`SandStack/agent.py`](SandStack/agent.py) | the `SandCell` class with the toppling rule (`is_unstable`, `topple`) |
 | [`SandStack/environment.py`](SandStack/environment.py) | creates the bounded `ap.Grid` and finds von Neumann neighbours (`von_neumann_neighbors`) |
 | [`SandStack/model.py`](SandStack/model.py) | `SandStack` — drops grains, runs avalanches and records the heights (`history`, `history_steps`) |
@@ -259,4 +310,5 @@ plt.show()
 ```
 
 For the other simulations, import from `BriansBrain.*`,
-`DiffusionLimitedAggregation.*`, `SandStack.*` or `SchellingModel.*` instead.
+`DiffusionLimitedAggregation.*`, `Epidemic.*`, `SandStack.*` or
+`SchellingModel.*` instead.

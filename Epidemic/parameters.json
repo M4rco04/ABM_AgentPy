@@ -1,0 +1,10 @@
+{
+  "size": 100,
+  "population": 2000,
+  "initial_infected": 1,
+  "infection_probability": 0.3,
+  "recovery_probability": 0.02,
+  "neighbor_distance": 1,
+  "steps": 500,
+  "seed": 42
+}

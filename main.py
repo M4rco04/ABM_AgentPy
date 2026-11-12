@@ -50,6 +50,20 @@ def run_dla() -> None:
     del animation
 
 
+def run_epidemic() -> None:
+    """Compute the epidemic simulation, then show the animation."""
+    from Epidemic.model import default_parameters
+    from Epidemic.visualization import animate_model, run_simulation
+
+    print("Obliczanie symulacji epidemii...")
+    model = run_simulation(default_parameters())
+    print(f"Gotowe: {model.t} kroków. Uruchamiam animację.")
+
+    animation = animate_model(model, interval=80)
+    plt.show()
+    del animation
+
+
 def run_sand() -> None:
     """Compute the sandpile simulation, then show the animation."""
     from SandStack.model import default_parameters
@@ -82,6 +96,7 @@ SIMULATIONS = {
     "boids": run_boids,
     "brain": run_brain,
     "dla": run_dla,
+    "epidemic": run_epidemic,
     "sand": run_sand,
     "schelling": run_schelling,
 }
